@@ -1,3 +1,4 @@
+
 (function() {
   'use strict';
 
@@ -7,6 +8,7 @@
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
+    return val;
   };
 
   /**
@@ -33,10 +35,15 @@
   _.first = function(array, n) {
     return n === undefined ? array[0] : array.slice(0, n);
   };
+  // if n === undefined return array[0], otherwise return array.slice(0,n);
 
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    if ( n > array.length) {
+      n = array.length;
+    }
+    return n === undefined ? array[array.length-1] : array.slice(array.length-n, array.length);
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -45,7 +52,25 @@
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
+  var response =[];
+
+    if ( Array.isArray(collection) ){
+
+        for (var key = 0 ; key < collection.length ; key++){
+          var value = collection[key];
+          response.push(iterator(value, key, collection));
+        }
+
+    } else {
+      for (var key in collection){
+        console.log();
+        var value = collection[key]
+        response.push(iterator(value, key, collection));
+      }
+    }
   };
+
+
 
   // Returns the index at which value can be found in the array, or -1 if value
   // is not present in the array.
@@ -60,23 +85,74 @@
         result = index;
       }
     });
-
     return result;
   };
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var result = [];
+      _.each(collection, function(item) {
+        if (test(item) === true ) {
+          result.push(item);
+        }
+      });
+      return result;
   };
 
   // Return all elements of an array that don't pass a truth test.
-  _.reject = function(collection, test) {
+  _.reject = function(array, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+    var result = [];
+      _.each(array, function(item) {
+        if (test(item) === false ) {
+          result.push(item);
+        }
+      });
+      return result;
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array, isSorted, iterator) {
+
+    var inPutMod =[];
+    if (arguments[2] != undefined){
+      _.each(array, function(value) {
+          inPutMod.push(iterator(value));
+      });
+      var result1 =[];
+      var result2 =[];
+      _.each(inPutMod, function(item_1) {
+        if ( _.indexOf(result1,item_1) === -1) {
+          result1.push(item_1);
+          result2.push(array[_.indexOf(result1,item_1)]);
+        }
+      });
+      return result2;
+
+    } else {
+      inPutMod = array;
+
+      var result =[];
+      _.each(inPutMod, function(item_1) {
+        if ( _.indexOf(result,item_1) === -1) {
+          result.push(item_1);
+        }
+      });
+      return result;
+    }
+
+
   };
+
+// uniq = [];
+// for (var i = 0; i < array.length; i++) {
+//
+//   if (uniq.indexof(num) == -1){
+//     push.uniq
+//   }
+//
+// }
 
 
   // Return the results of applying an iterator to each element.
@@ -107,19 +183,19 @@
   // Reduces an array or object to a single value by repetitively calling
   // iterator(accumulator, item) for each item. accumulator should be
   // the return value of the previous iterator call.
-  //  
+  //
   // You can pass in a starting value for the accumulator as the third argument
   // to reduce. If no starting value is passed, the first element is used as
   // the accumulator, and is never passed to the iterator. In other words, in
   // the case where a starting value is not passed, the iterator is not invoked
   // until the second element, with the first element as its second argument.
-  //  
+  //
   // Example:
   //   var numbers = [1,2,3];
   //   var sum = _.reduce(numbers, function(total, number){
   //     return total + number;
   //   }, 0); // should be 6
-  //  
+  //
   //   var identity = _.reduce([5], function(total, number){
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
