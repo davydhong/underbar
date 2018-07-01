@@ -156,6 +156,8 @@
     return result;
   };
 
+
+
   /*
    * TIP: map is really handy when you want to transform an array of
    * values into a new array of values. _.pluck() is solved for you
@@ -209,9 +211,16 @@
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
+
+    var conv = [];// convert to an array
+    for (var i in collection){
+      conv.push(i);
+      conv.push(collection[i]);
+    }
+
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
-    return _.reduce(collection, function(wasFound, item) {
+    return _.reduce(conv, function(wasFound, item) {
       if (wasFound) {
         return true;
       }
@@ -223,13 +232,52 @@
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
-    // TIP: Try re-using reduce() here.
+    if ( arguments.length === 1 ){
+      if (_.indexOf(collection,false) > -1 ){
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      var check =[];
+      _.each(collection,function(value){
+        if (iterator(value)){
+        } else {
+          check.push(false);
+        }
+      });
+      if (_.indexOf(check,false) > -1 ){
+        return false;
+      } else {
+        return true;
+      }
+    }
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
-    // TIP: There's a very clever way to re-use every() here.
+    if ( arguments.length === 1 ){
+      if (_.indexOf(collection,true) > -1 ){
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      var check =[];
+      _.each(collection,function(value){
+        if (iterator(value)){
+          check.push(true);
+        } else {
+          check.push(false);
+        }
+      });
+      if (_.indexOf(check,true) > -1 ){
+        return true;
+      } else {
+        return false;
+      }
+    }
   };
 
   /**
@@ -251,11 +299,25 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    var result = arguments[0];
+    for (var i = 1 ; i < arguments.length ; i++){
+      for (var j in arguments[i]){
+        result[j] = arguments[i][j];
+      }
+    }
+    return result;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var result = arguments[0];
+    for (var i = 1 ; i < arguments.length ; i++){
+      for (var j in arguments[i]){
+        if ( result[j] === undefined){ result[j] = arguments[i][j];}
+      }
+    }
+    return result;
   };
 
 
@@ -298,8 +360,39 @@
   // _.memoize should return a function that, when called, will check if it has
   // already computed the result for the given argument and return that value
   // instead if possible.
+
+
   _.memoize = function(func) {
-  };
+    var result;
+    var name = arguments[0].displayName;
+    var nameList =[];
+    var argList =[];
+
+    return function() {
+        var uniqCounter =0;
+        var arg = [...arguments];
+
+
+        for (var i = 0; i < argList.length; i++) {
+
+          if ( arg.toString() == argList[i].toString() && arg.length == argList[i].length){
+            uniqCounter++
+          }
+        }
+
+        if (uniqCounter ==0 || !_.contains(nameList,name)  ) {
+            // console.log( arguments);
+            // console.log(arg[0] );
+          result = func.apply(this, arguments);
+          argList.push( arg );
+          nameList.push (name);
+
+          // console.log( argList);
+        return result;
+      }
+    };
+
+  }
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -308,6 +401,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+
+    var inputArg = [...arguments].slice(2,[...arguments].length)
+    setInterval(function (){
+      return func.apply(this, inputArg);
+    },wait);
   };
 
 
@@ -322,6 +420,37 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var newIdx=[];
+    var newArr=[];
+
+    function isUniq(arr){
+      if (arr.length < 2){return false;}
+      for (var i = 0; i < arr.length-1; i++) {
+        for (var j = i+1; j < arr.length; j++) {
+          if (arr[i] === arr[j] ){
+            return false;
+          }
+        }
+      }
+      return true;
+    };
+    // console.log(newIdx.length !== array.length &&  );
+
+
+    while (!isUniq(newIdx) ){
+      var newIdx=[];
+
+      // console.log( isUniq(newIdx));
+      for (var i = 0; i < array.length; i++) {
+        // console.log("hello");
+        newIdx.push(Math.floor( Math.random()*array.length));
+      }
+    }
+    for (var i = 0; i <  newIdx.length; i++) {
+       newArr[ i ]= array[newIdx[i]];
+    }
+    return newArr;
+
   };
 
 
