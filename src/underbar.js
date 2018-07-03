@@ -452,8 +452,10 @@
     return newArr;
 
   };
-
-
+console.dir( _.each)
+console.dir( _.once)
+console.dir( _.memoize)
+console.dir( _.shuffle)
   /**
    * ADVANCED
    * =================
